@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UnderLux</title>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c8a96e;
+    --gold2: #f0c060;
+    --dark: #0a0806;
+    --dark2: #12100c;
+    --parchment: #f5e6c8;
+    --blood: #8b1a1a;
+    --holy: #fffbe6;
+    --shadow: rgba(0,0,0,0.8);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--parchment);
+    font-family: 'Crimson Text', serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Fundo com textura de pedra */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(200,169,110,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #game {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 700px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  /* ── TELA TÍTULO ── */
+  #screen-title {
+    text-align: center;
+    animation: fadeIn 2s ease;
+  }
+
+  .cross-symbol {
+    font-size: 4rem;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(200,169,110,0.8), 0 0 60px rgba(200,169,110,0.4);
+    animation: pulse-holy 3s ease-in-out infinite;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  @keyframes pulse-holy {
+    0%, 100% { text-shadow: 0 0 20px rgba(200,169,110,0.6), 0 0 40px rgba(200,169,110,0.3); }
+    50% { text-shadow: 0 0 40px rgba(200,169,110,1), 0 0 80px rgba(200,169,110,0.6), 0 0 120px rgba(240,192,96,0.3); }
+  }
+
+  .game-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    font-weight: 900;
+    background: linear-gradient(180deg, #f0c060 0%, #c8a96e 40%, #8b6914 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.15em;
+    line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
+  }
+
+  .game-subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.75rem, 2vw, 1rem);
+    color: var(--gold);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+  }
+
+  .title-divider {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1.5rem auto;
+  }
+
+  .title-verse {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    color: rgba(245,230,200,0.7);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── INPUTS ── */
+  .name-input {
+    background: rgba(200,169,110,0.08);
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    color: var(--parchment);
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    padding: 0.8rem 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+    outline: none;
+    transition: all 0.3s;
+    letter-spacing: 0.1em;
+  }
+
+  .name-input:focus {
+    border-color: var(--gold2);
+    box-shadow: 0 0 20px rgba(200,169,110,0.3);
+    background: rgba(200,169,110,0.12);
+  }
+
+  .name-input::placeholder { color: rgba(200,169,110,0.4); }
+
+  .name-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: block;
+  }
+
+  /* ── BOTÕES ── */
+  .btn {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 0.8rem 2.5rem;
+    border: 1.5px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.25s;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    margin-top: 1.5rem;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(200,169,110,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .btn:hover {
+    border-color: var(--gold2);
+    color: var(--gold2);
+    box-shadow: 0 0 20px rgba(200,169,110,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn:hover::before { opacity: 1; }
+  .btn:active { transform: translateY(0); }
+
+  .btn-error { border-color: var(--blood); color: #ff6666; animation: shake 0.3s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  /* ── TELA DE JOGO ── */
+  #screen-game { width: 100%; display: none; flex-direction: column; gap: 1rem; animation: fadeIn 1s ease; }
+
+  /* Caixa de cena */
+  .scene-box {
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 8px;
+    padding: 0.5rem;
+    background: rgba(10,8,6,0.6);
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Arte ASCII da cena */
+  .scene-art {
+    font-family: monospace;
+    font-size: clamp(0.45rem, 1.5vw, 0.7rem);
+    color: var(--gold);
+    text-align: center;
+    line-height: 1.2;
+    white-space: pre;
+    opacity: 0.85;
+    text-shadow: 0 0 8px rgba(200,169,110,0.4);
+  }
+
+  /* Caixa de diálogo */
+  .dialog-box {
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    background: rgba(10,8,6,0.95);
+    position: relative;
+    min-height: 100px;
+  }
+
+  .dialog-box::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border: 1px solid rgba(200,169,110,0.2);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  .speaker-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--gold2);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .speaker-name::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(200,169,110,0.4), transparent);
+  }
+
+  .dialog-text {
+    font-family: 'Crimson Text', serif;
+    font-size: clamp(1rem, 3vw, 1.15rem);
+    line-height: 1.7;
+    color: var(--parchment);
+    min-height: 3em;
+  }
+
+  .dialog-continue {
+    text-align: right;
+    margin-top: 0.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--gold);
+    opacity: 0;
+    animation: blink 1s step-end infinite;
+  }
+
+  .dialog-continue.show { opacity: 1; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Caixa de batalha */
+  .battle-box {
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 1.2rem;
+    background: rgba(10,8,6,0.95);
+    display: none;
+  }
+
+  .battle-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-align: center;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .enemy-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--blood);
+    text-align: center;
+    text-shadow: 0 0 15px rgba(139,26,26,0.6);
+    margin-bottom: 0.3rem;
+  }
+
+  .enemy-hp {
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(245,230,200,0.6);
+    margin-bottom: 1rem;
+    font-family: 'Cinzel', serif;
+  }
+
+  .hp-bar {
+    height: 8px;
+    background: rgba(200,169,110,0.15);
+    border-radius: 4px;
+    border: 1px solid rgba(200,169,110,0.3);
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blood), #cc3333);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .player-hp {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.6rem 1rem;
+    background: rgba(200,169,110,0.06);
+    border-radius: 6px;
+    border: 1px solid rgba(200,169,110,0.2);
+  }
+
+  .player-hp-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .player-hp-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(200,169,110,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(200,169,110,0.2);
+  }
+
+  .player-hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2a8b2a, #44cc44);
+    border-radius: 5px;
+    transition: width 0.5s ease;
+  }
+
+  .player-hp-num {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: #44cc44;
+    white-space: nowrap;
+  }
+
+  /* Botões de ação da batalha */
+  .battle-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+
+  .battle-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.7rem 1rem;
+    border: 1.5px solid;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .battle-btn.pray   { border-color: #c8a96e; color: #c8a96e; }
+  .battle-btn.mercy  { border-color: #44cc44; color: #44cc44; }
+  .battle-btn.confront { border-color: #cc4444; color: #cc4444; }
+  .battle-btn.flee   { border-color: #4444cc; color: #8888ff; }
+
+  .battle-btn:hover { filter: brightness(1.3); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .battle-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+  /* Mensagem de batalha */
+  .battle-msg {
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    color: var(--parchment);
+    text-align: center;
+    min-height: 2.5em;
+    padding: 0.5rem;
+    line-height: 1.6;
+    border-top: 1px solid rgba(200,169,110,0.2);
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+  }
+
+  /* HUD do jogador */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(200,169,110,0.2);
+    border-radius: 6px;
+    background: rgba(10,8,6,0.7);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+  }
+
+  .hud-name { color: var(--gold); font-weight: 700; }
+  .hud-location { color: rgba(200,169,110,0.6); font-size: 0.7rem; letter-spacing: 0.1em; }
+
+  /* Tela de game over / vitória */
+  .result-screen {
+    text-align: center;
+    padding: 2rem;
+    animation: fadeIn 1s ease;
+  }
+
+  .result-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+  }
+
+  .result-title.victory { color: var(--gold2); text-shadow: 0 0 30px rgba(240,192,96,0.6); }
+  .result-title.defeat  { color: var(--blood); text-shadow: 0 0 30px rgba(139,26,26,0.6); }
+
+  .result-text {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1rem;
+    color: rgba(245,230,200,0.8);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  /* Animações */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes flash-red {
+    0%, 100% { background: rgba(10,8,6,0.95); }
+    50% { background: rgba(139,26,26,0.3); }
+  }
+
+  @keyframes flash-gold {
+    0%, 100% { background: rgba(10,8,6,0.95); }
+    50% { background: rgba(200,169,110,0.2); }
+  }
+
+  .flash-red { animation: flash-red 0.4s ease; }
+  .flash-gold { animation: flash-gold 0.4s ease; }
+
+  /* Ornamentos decorativos */
+  .ornament {
+    color: var(--gold);
+    opacity: 0.5;
+    font-size: 1.2rem;
+    letter-spacing: 0.5rem;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+
+  /* Responsivo */
+  @media (max-width: 480px) {
+    .battle-actions { grid-template-columns: 1fr 1fr; }
+    .scene-art { font-size: 0.4rem; }
+  }
+</style>
+</head>
+<body>
+<div id="game">
+
+  <!-- ══ TELA TÍTULO ══ -->
+  <div id="screen-title">
+    <span class="cross-symbol">✝</span>
+    <div class="game-title">UnderLux</div>
+    <div class="game-subtitle">A Jornada do Acólito</div>
+    <div class="title-divider"></div>
+    <div class="title-verse">"Sou a luz do mundo. Quem me segue não andará nas trevas."<br><small>— João 8:12</small></div>
+
+    <div style="margin-bottom:0.6rem;">
+      <label class="name-label">Qual é o teu nome, peregrino?</label>
+      <input class="name-input" id="player-name-input" type="text" maxlength="16"
+             placeholder="Teu nome..." autocomplete="off"
+             onkeydown="if(event.key==='Enter') startGame()">
+    </div>
+    <div id="name-error" style="color:#ff6666;font-size:0.85rem;min-height:1.2em;font-family:'Cinzel',serif;letter-spacing:0.1em;"></div>
+    <button class="btn" onclick="startGame()">⚔ Começar Jornada</button>
+
+    <div class="ornament" style="margin-top:2rem;">✦ ✝ ✦</div>
+  </div>
+
+  <!-- ══ TELA DE JOGO ══ -->
+  <div id="screen-game">
+
+    <!-- HUD -->
+    <div class="hud">
+      <span class="hud-name" id="hud-name">—</span>
+      <span class="hud-location" id="hud-location">TERRA SANTA · JERUSALÉM</span>
+    </div>
+
+    <!-- Cena visual -->
+    <div class="scene-box">
+      <div class="scene-art" id="scene-art"></div>
+    </div>
+
+    <!-- Diálogo -->
+    <div class="dialog-box" id="dialog-box" onclick="advanceDialog()" style="cursor:pointer;">
+      <div class="speaker-name" id="speaker-name">Narrador</div>
+      <div class="dialog-text" id="dialog-text"></div>
+      <div class="dialog-continue" id="dialog-continue">▼ clique para continuar</div>
+    </div>
+
+    <!-- Batalha -->
+    <div class="battle-box" id="battle-box">
+      <div class="battle-title">⚔ Encontro Espiritual</div>
+      <div class="enemy-name" id="enemy-name">—</div>
+      <div class="enemy-hp" id="enemy-hp-text">—</div>
+      <div class="hp-bar"><div class="hp-fill" id="enemy-hp-bar" style="width:100%"></div></div>
+      <div class="player-hp">
+        <span class="player-hp-label" id="player-hp-label">—</span>
+        <div class="player-hp-bar"><div class="player-hp-fill" id="player-hp-fill" style="width:100%"></div></div>
+        <span class="player-hp-num" id="player-hp-num">20/20</span>
+      </div>
+      <div class="battle-actions">
+        <button class="battle-btn pray"     onclick="battleAction('pray')">🙏 Orar</button>
+        <button class="battle-btn mercy"    onclick="battleAction('mercy')">✝ Misericórdia</button>
+        <button class="battle-btn confront" onclick="battleAction('confront')">⚔ Confrontar</button>
+        <button class="battle-btn flee"     onclick="battleAction('flee')">🏃 Fugir</button>
+      </div>
+      <div class="battle-msg" id="battle-msg">Escolhe tua ação...</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  ESTADO DO JOGO
+// ══════════════════════════════════════════════
+let G = {
+  playerName: '',
+  hp: 20, maxHp: 20,
+  faith: 10, maxFaith: 10,
+  mercy: 0,         // quantas vezes usou misericórdia
+  scene: 0,
+  inBattle: false,
+  enemy: null,
+  dialogIdx: 0,
+  dialogQueue: [],
+  typing: false,
+  typeTimer: null,
+};
+
+// ══════════════════════════════════════════════
+//  CENAS
+// ══════════════════════════════════════════════
+const SCENES = [
+  // 0 — Chegada em Jerusalém
+  {
+    art: `
+         ,  .  ,
+        / \\ | / \\
+       /   \\|/   \\
+      |  ✝  |  ✝  |
+      |_____|_____|
+     /|     |     |\\
+    / |  A  |  K  | \\
+   /  |  Q  |  S  |  \\
+  |===|=====|=====|===|
+  |   |  ✦  |  ✦  |   |
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORTÃO DE JERUSALÉM
+    `,
+    dialogs: [
+      { speaker: 'Narrador', text: 'O sol de Jerusalém aquece tua face enquanto cruzas o Portão de Damasco. O cheiro de incenso e pedra antiga te envolve.' },
+      { speaker: 'Narrador', text: 'Tu és um jovem acólito em peregrinação — a primeira de tua vida. Teu coração pulsa com fé e ansiedade.' },
+      { speaker: 'Velho Peregrino', text: 'Ei, jovem! Para ali! Esta cidade é sagrada mas repleta de tentações. O inimigo não descansa nem em solo santo.' },
+      { speaker: 'Velho Peregrino', text: 'Guarda a fé no coração como um escudo. E lembra — a misericórdia sempre vence o julgamento. — Tiago 2:13' },
+      { speaker: 'Narrador', text: 'O velho desaparece na multidão antes que possas perguntar seu nome. Um anjo disfarçado? Só Deus sabe.' },
+    ],
+    next: 1
+  },
+
+  // 1 — Via Dolorosa
+  {
+    art: `
+  ~·~·~·~·~·~·~·~·~·~·~·~·~
+     VIA  DOLOROSA
+  ~·~·~·~·~·~·~·~·~·~·~·~·~
+       \\   |   /
+        \\  |  /
+    -----\\-|-/-----
+         [✝]
+    -----/-|\\-----
+        /  |  \\
+       /   |   \\
+  pedras milenares...
+    `,
+    dialogs: [
+      { speaker: 'Narrador', text: 'A Via Dolorosa se estende diante de ti — o mesmo caminho que Cristo percorreu carregando a Cruz.' },
+      { speaker: 'Narrador', text: 'Cada pedra carrega séculos de orações, lágrimas e esperança de peregrinos de todo o mundo.' },
+      { speaker: 'Narrador', text: 'De repente, uma figura sombria bloqueia teu caminho. Seus olhos brilham com escuridão e seu sorriso é torto.' },
+      { speaker: 'Espírito da Dúvida', text: 'Heh heh... um acólito tão jovem num lugar tão sagrado. Aposto que não és digno de estar aqui.' },
+      { speaker: 'Espírito da Dúvida', text: 'Quantas vezes já pecaste? Quantas vezes prometeste mudar e falhaste? Deus não te ouve. Desiste.' },
+    ],
+    next: 'battle_1'
+  },
+
+  // BATALHA 1
+  {
+    id: 'battle_1',
+    art: `
+   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+   ▓                     ▓
+   ▓   ~ BATALHA ~       ▓
+   ▓  Espírito da Dúvida ▓
+   ▓                     ▓
+   ▓    ( ̄ヘ ̄)         ▓
+   ▓     sombra          ▓
+   ▓                     ▓
+   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+    `,
+    enemy: {
+      name: 'Espírito da Dúvida',
+      hp: 12, maxHp: 12,
+      mercyNeeded: 2,
+      attacks: [
+        'susurra em teu ouvido: "Tu não prestes..."',
+        'lança sobre ti a névoa da incerteza!',
+        'evoca memórias de tuas falhas passadas!',
+        'grita: "Deus está longe demais para ouvir!"',
+      ],
+      mercyLines: [
+        'recua ligeiramente ao ver tua compaixão...',
+        'hesita — talvez haja bondade até nele...',
+      ],
+      defeatText: 'O Espírito da Dúvida se dissolve em luz ao ouvir tuas orações. "Não... a fé... queima..."',
+      fleeText: 'Fuges pela Via Dolorosa. A sombra ri, mas não te segue. Hoje sobreviveste.',
+    },
+    next: 2
+  },
+
+  // 2 — Igreja do Santo Sepulcro
+  {
+    art: `
+      ___________
+     /     ✝     \\
+    |  [SEPULCRO] |
+    |  _________  |
+    | |         | |
+    | |  ~luz~  | |
+    | |_________| |
+    |_____________|
+    |   |     |   |
+    |   |  ✦  |   |
+    ~~~~~~~~~~~~~~~~~~~
+  IGREJA DO SANTO SEPULCRO
+    `,
+    dialogs: [
+      { speaker: 'Narrador', text: 'Victória! Atravessas o pátio e entras na Igreja do Santo Sepulcro. O silêncio aqui tem peso.' },
+      { speaker: 'Narrador', text: 'Diante do túmulo vazio, teu coração se enche de algo que não sabes nomear. Paz? Certeza? Graça?' },
+      { speaker: 'Narrador', text: 'Uma freira idosa te nota ajoelhado e sorri com ternura.' },
+      { speaker: 'Irmã Maria', text: 'Jovem acólito... é tão raro ver alguém da tua idade neste lugar com tanto fervor.' },
+      { speaker: 'Irmã Maria', text: 'Sabes o que este túmulo vazio nos diz? Que a morte não tem a última palavra. Nunca terá.' },
+      { speaker: 'Irmã Maria', text: 'Mas cuidado — antes de chegares ao Monte das Oliveiras, passarás pelo Mercado das Tentações. Ora primeiro.' },
+    ],
+    next: 3
+  },
+
+  // 3 — Mercado / Batalha 2
+  {
+    art: `
+  ||||||||||||||||||||||||
+  | MERCADO DAS ALMAS   |
+  ||||||||||||||||||||||||
+  |  [~]  [~]  [~]  [~] |
+  | barraca barraca bar  |
+  |   $   $   $   $   $ |
+  |  ouro  prazer luxo  |
+  ||||||||||||||||||||||||
+  | "Tudo isso te darei" |
+  ||||||||||||||||||||||||
+    `,
+    dialogs: [
+      { speaker: 'Narrador', text: 'O mercado brilha com cores e aromas sedutores. Vozes te chamam de todos os lados.' },
+      { speaker: 'Vendedor Sombrio', text: 'Psiu! Acólito! Que adianta toda essa peregrinação? A vida é curta — aproveita! Tenho prazer, riqueza, fama...' },
+      { speaker: 'Narrador', text: 'O vendedor se transforma diante de teus olhos — não é humano. É o Espírito da Tentação.' },
+      { speaker: 'Espírito da Tentação', text: 'Vamos lá... todos pecam. Todos caem. Por que resistir? Sejas como todos os outros.' },
+    ],
+    next: 'battle_2'
+  },
+
+  // BATALHA 2
+  {
+    id: 'battle_2',
+    art: `
+   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+   ▓                     ▓
+   ▓   ~ BATALHA ~       ▓
+   ▓ Espírito da Tentação▓
+   ▓                     ▓
+   ▓    (>‿◠)✿          ▓
+   ▓   sedutor           ▓
+   ▓                     ▓
+   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+    `,
+    enemy: {
+      name: 'Espírito da Tentação',
+      hp: 16, maxHp: 16,
+      mercyNeeded: 3,
+      attacks: [
+        'oferece-te visões de prazer e conforto...',
+        'sussurra: "Uma vez só não faz mal..." e te tira 3 de vida!',
+        'faz brilharem tentações diante de teus olhos!',
+        'ri: "Vês? Todos os que te cercam cedem. Por que tu não?"',
+      ],
+      mercyLines: [
+        'para por um instante, confuso com tua resistência...',
+        'recua: "Não... por que não cedes...?"',
+        'treme ligeiramente — a compaixão lhe queima.',
+      ],
+      defeatText: 'O Espírito da Tentação uiva enquanto a luz da fé o consome. "Impossível... um acólito que resiste..."',
+      fleeText: 'Corres pelo mercado. As tentações ainda sussurram, mas a distância as abafa. Futura batalha te espera.',
+    },
+    next: 4
+  },
+
+  // 4 — Monte das Oliveiras — Final
+  {
+    art: `
+      * . * . * . * . *
+    .   MONTE DAS   .
+      . OLIVEIRAS .
+    .               .
+      \\   \\   /   /
+       \\   \\ /   /
+        \\   ✝   /
+         \\ / \\ /
+          V   V
+    oliveiras milenares
+      . . . . . . .
+    `,
+    dialogs: [
+      { speaker: 'Narrador', text: 'O Monte das Oliveiras. O lugar onde Cristo orou, suou sangue e aceitou a vontade do Pai.' },
+      { speaker: 'Narrador', text: 'Chegas exausto mas em paz. As batalhas te forjaram. A fé te sustentou até aqui.' },
+      { speaker: 'Narrador', text: 'Sob uma oliveira milenar, ajoelhas-te. Não há palavras. Só silêncio e presença.' },
+      { speaker: 'Voz Interior', text: '"Bem-aventurados os puros de coração, porque eles verão a Deus." — Mateus 5:8' },
+      { speaker: 'Narrador', text: 'Não sabes se é o vento ou algo mais. Mas teu coração, aquele acólito jovem que partiu com medo, agora arde.' },
+    ],
+    next: 'victory'
+  }
+];
+
+// ══════════════════════════════════════════════
+//  UTILITÁRIOS
+// ══════════════════════════════════════════════
+const PALAVROES = ['merda','caralho','porra','fdp','vsf','fuck','shit','puta','safado','cu','ass','bitch'];
+
+function isBadName(n) {
+  const t = n.toLowerCase();
+  return PALAVROES.some(p => t.includes(p));
+}
+
+function setDialogText(text, speed = 30) {
+  clearTimeout(G.typeTimer);
+  G.typing = true;
+  const el = document.getElementById('dialog-text');
+  const cont = document.getElementById('dialog-continue');
+  cont.classList.remove('show');
+  el.textContent = '';
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      el.textContent += text[i++];
+      G.typeTimer = setTimeout(type, speed);
+    } else {
+      G.typing = false;
+      cont.classList.add('show');
+    }
+  }
+  type();
+}
+
+function skipTyping() {
+  if (G.typing) {
+    clearTimeout(G.typeTimer);
+    G.typing = false;
+    const dialogs = getCurrentDialogs();
+    if (dialogs && G.dialogIdx - 1 < dialogs.length) {
+      document.getElementById('dialog-text').textContent = dialogs[G.dialogIdx - 1]?.text || '';
+    }
+    document.getElementById('dialog-continue').classList.add('show');
+  }
+}
+
+function getCurrentDialogs() {
+  const scene = getSceneData(G.scene);
+  return scene?.dialogs || null;
+}
+
+function getSceneData(id) {
+  if (typeof id === 'number') return SCENES[id];
+  return SCENES.find(s => s.id === id) || null;
+}
+
+function updateHUD() {
+  document.getElementById('hud-name').textContent = G.playerName;
+}
+
+// ══════════════════════════════════════════════
+//  INÍCIO DO JOGO
+// ══════════════════════════════════════════════
+function startGame() {
+  const inp = document.getElementById('player-name-input');
+  const err = document.getElementById('name-error');
+  const name = inp.value.trim();
+
+  if (!name) {
+    err.textContent = '✦ Diz-nos teu nome, peregrino.';
+    inp.classList.add('btn-error'); setTimeout(() => inp.classList.remove('btn-error'), 300);
+    return;
+  }
+  if (name.length < 2) {
+    err.textContent = '✦ Teu nome deve ter ao menos 2 letras.';
+    return;
+  }
+  if (isBadName(name)) {
+    err.textContent = '✦ Este nome não é digno de um peregrino. 🙏';
+    inp.classList.add('btn-error'); setTimeout(() => inp.classList.remove('btn-error'), 300);
+    return;
+  }
+
+  G.playerName = name;
+  err.textContent = '';
+  document.getElementById('screen-title').style.display = 'none';
+  const sg = document.getElementById('screen-game');
+  sg.style.display = 'flex';
+  sg.style.flexDirection = 'column';
+
+  updateHUD();
+  loadScene(0);
+}
+
+// ══════════════════════════════════════════════
+//  CARREGAR CENA
+// ══════════════════════════════════════════════
+function loadScene(sceneId) {
+  G.scene = sceneId;
+  G.dialogIdx = 0;
+
+  const scene = getSceneData(sceneId);
+  if (!scene) return;
+
+  // Arte
+  document.getElementById('scene-art').textContent = scene.art || '';
+
+  // Batalha?
+  if (scene.enemy) {
+    // Configura inimigo
+    G.inBattle = true;
+    G.enemy = { ...scene.enemy };
+    document.getElementById('battle-box').style.display = 'block';
+    document.getElementById('dialog-box').style.display = 'none';
+    setupBattle();
+    return;
+  }
+
+  // Diálogo normal
+  document.getElementById('battle-box').style.display = 'none';
+  document.getElementById('dialog-box').style.display = 'block';
+  G.inBattle = false;
+
+  if (scene.dialogs && scene.dialogs.length > 0) {
+    showDialog(0);
+  }
+}
+
+function showDialog(idx) {
+  const scene = getSceneData(G.scene);
+  if (!scene || !scene.dialogs) return;
+  if (idx >= scene.dialogs.length) {
+    // Fim dos diálogos — próxima cena
+    const next = scene.next;
+    if (next === 'victory') { showVictory(); return; }
+    if (next === 'defeat')  { showDefeat(); return; }
+    setTimeout(() => loadScene(next), 600);
+    return;
+  }
+
+  G.dialogIdx = idx + 1;
+  const d = scene.dialogs[idx];
+  document.getElementById('speaker-name').textContent = d.speaker;
+  setDialogText(d.text);
+}
+
+function advanceDialog() {
+  if (G.inBattle) return;
+  if (G.typing) { skipTyping(); return; }
+  showDialog(G.dialogIdx);
+}
+
+// ══════════════════════════════════════════════
+//  BATALHA
+// ══════════════════════════════════════════════
+function setupBattle() {
+  const e = G.enemy;
+  e.currentMercy = 0;
+  document.getElementById('enemy-name').textContent = e.name;
+  updateEnemyHP();
+  updatePlayerHP();
+  document.getElementById('battle-msg').textContent = 'Escolhe tua ação, ' + G.playerName + '...';
+  enableBattleButtons(true);
+  document.getElementById('player-hp-label').textContent = G.playerName;
+}
+
+function updateEnemyHP() {
+  const e = G.enemy;
+  const pct = Math.max(0, e.hp / e.maxHp * 100);
+  document.getElementById('enemy-hp-bar').style.width = pct + '%';
+  document.getElementById('enemy-hp-text').textContent = `Vida: ${Math.max(0,e.hp)} / ${e.maxHp}`;
+}
+
+function updatePlayerHP() {
+  const pct = Math.max(0, G.hp / G.maxHp * 100);
+  document.getElementById('player-hp-fill').style.width = pct + '%';
+  document.getElementById('player-hp-num').textContent = `${Math.max(0,G.hp)}/${G.maxHp}`;
+}
+
+function enableBattleButtons(on) {
+  document.querySelectorAll('.battle-btn').forEach(b => b.disabled = !on);
+}
+
+function battleMsg(txt) {
+  document.getElementById('battle-msg').textContent = txt;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function battleAction(action) {
+  enableBattleButtons(false);
+  const e = G.enemy;
+  const box = document.getElementById('battle-box');
+
+  if (action === 'pray') {
+    battleMsg('🙏 Rezas com fervor. A luz ao teu redor aumenta...');
+    e.hp -= 4;
+    box.classList.add('flash-gold'); setTimeout(()=>box.classList.remove('flash-gold'),400);
+    await sleep(500);
+    battleMsg(`✝ "Senhor, vinde em meu auxílio!" — O inimigo recua 4 pontos!`);
+
+  } else if (action === 'mercy') {
+    e.currentMercy = (e.currentMercy || 0) + 1;
+    const line = e.mercyLines[Math.min(e.currentMercy-1, e.mercyLines.length-1)];
+    battleMsg('💛 Ofereces misericórdia... ' + (e.name) + ' ' + line);
+    await sleep(600);
+    if (e.currentMercy >= e.mercyNeeded) {
+      // Vitória pela misericórdia!
+      battleMsg('✝ A misericórdia triunfou! ' + e.defeatText);
+      G.mercy++;
+      await sleep(1500);
+      endBattle(true);
+      return;
+    }
+    battleMsg('A misericórdia abala o inimigo, mas a batalha continua...');
+
+  } else if (action === 'confront') {
+    const dmg = 3 + Math.floor(Math.random() * 4);
+    e.hp -= dmg;
+    box.classList.add('flash-red'); setTimeout(()=>box.classList.remove('flash-red'),400);
+    battleMsg(`⚔ Confrontas o mal com coragem! Causas ${dmg} de dano!`);
+
+  } else if (action === 'flee') {
+    battleMsg('🏃 ' + e.fleeText);
+    await sleep(1500);
+    // Ao fugir volta ao começo do capítulo
+    endBattle(false, true);
+    return;
+  }
+
+  updateEnemyHP();
+
+  // Verifica morte do inimigo
+  if (e.hp <= 0) {
+    battleMsg('✝ ' + e.defeatText);
+    await sleep(1500);
+    endBattle(true);
+    return;
+  }
+
+  // Ataque do inimigo
+  await sleep(800);
+  const atk = e.attacks[Math.floor(Math.random() * e.attacks.length)];
+  const dmgTaken = 2 + Math.floor(Math.random() * 3);
+  G.hp -= dmgTaken;
+  updatePlayerHP();
+  battleMsg(`👁 ${e.name} ${atk} — Perdes ${dmgTaken} de vida!`);
+  box.classList.add('flash-red'); setTimeout(()=>box.classList.remove('flash-red'),400);
+
+  await sleep(800);
+
+  if (G.hp <= 0) {
+    showDefeat();
+    return;
+  }
+
+  battleMsg('Escolhe tua próxima ação...');
+  enableBattleButtons(true);
+}
+
+function endBattle(won, fled = false) {
+  G.inBattle = false;
+  document.getElementById('battle-box').style.display = 'none';
+  document.getElementById('dialog-box').style.display = 'block';
+
+  const scene = getSceneData(G.scene);
+  const next = scene?.next;
+
+  if (fled || !won) {
+    // Regenera um pouco e recarrega
+    G.hp = Math.min(G.maxHp, G.hp + 3);
+    loadScene(G.scene); // reluta a batalha
+    return;
+  }
+
+  if (next === 'victory') { showVictory(); return; }
+  if (next === 'defeat')  { showDefeat(); return; }
+  setTimeout(() => loadScene(next), 800);
+}
+
+// ══════════════════════════════════════════════
+//  FIM DE JOGO
+// ══════════════════════════════════════════════
+function showVictory() {
+  const mercyBonus = G.mercy >= 2 ? '\n\n🌟 Bônus de Misericórdia: Dois inimigos foram vencidos pela compaixão. Beato és, ' + G.playerName + '!' : '';
+  const sg = document.getElementById('screen-game');
+  sg.innerHTML = `
+    <div class="result-screen">
+      <span style="font-size:3rem;display:block;margin-bottom:1rem;">✝</span>
+      <div class="result-title victory">Lux Aeterna</div>
+      <div class="title-divider"></div>
+      <div class="result-text">
+        ${G.playerName}, chegaste ao fim da tua jornada pela Terra Santa.<br><br>
+        Enfrentaste a Dúvida e a Tentação — e não cedeste.<br>
+        Aqui, no Monte das Oliveiras, onde Cristo suou sangue por amor,<br>
+        tu provaste que a fé supera todo o medo.${mercyBonus}
+        <br><br>
+        <em>"Combati o bom combate, terminei a corrida, guardei a fé."<br>— 2 Timóteo 4:7</em>
+      </div>
+      <button class="btn" onclick="location.reload()">↺ Nova Jornada</button>
+      <div class="ornament" style="margin-top:1.5rem;">✦ PAX ET BONUM ✦</div>
+    </div>`;
+}
+
+function showDefeat() {
+  const sg = document.getElementById('screen-game');
+  sg.innerHTML = `
+    <div class="result-screen">
+      <span style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.5;">✝</span>
+      <div class="result-title defeat">O Peregrino Caiu</div>
+      <div class="title-divider"></div>
+      <div class="result-text">
+        ${G.playerName}, tuas forças falharam nesta jornada.<br><br>
+        Mas a queda não é o fim — é o início do levante.<br>
+        Os santos não são pessoas que nunca caíram.<br>
+        São pessoas que sempre se levantaram.
+        <br><br>
+        <em>"Porque sete vezes cairá o justo, e se levantará."<br>— Provérbios 24:16</em>
+      </div>
+      <button class="btn" onclick="location.reload()">↺ Levantar-se</button>
+    </div>`;
+}
+
+// Clique em qualquer lugar avança diálogo (exceto batalha)
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'Enter') {
+    if (!G.inBattle) advanceDialog();
+  }
+});
+</script>
+</body>
+</html>
